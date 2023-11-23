@@ -1,65 +1,102 @@
-import tkinter as tk
+##importing mmodules
 
-# Function to encrypt the message
-def encrypt_message(message, key):
-    encrypted_message = ""
-    for char in message:
-        if char.isalpha():
-            shift = ord('A') if char.isupper() else ord('a')
-            encrypted_message += chr((ord(char) - shift + key) % 26 + shift)
-        else:
-            encrypted_message += char
-    return encrypted_message
+from tkinter import *
+import base64
 
-# Function to decrypt the message
-def decrypt_message(encrypted_message, key):
-    return encrypt_message(encrypted_message, 26 - key) # Decrypting is just encrypting with the inverse key
+# initialize window
+root = Tk()
+root.geometry('500x300')
+root.resizable(0, 0)
 
-# Function to handle encryption button click
-def encrypt_button_clicked():
-    message = entry_message.get()
-    key = int(entry_key.get())
-    encrypted = encrypt_message(message, key)
-    entry_output.delete(0, tk.END)
-    entry_output.insert(tk.END, encrypted)
+# title of the window
+root.title("Message Encode and Decode")
 
-# Function to handle decryption button click
-def decrypt_button_clicked():
-    encrypted_message = entry_message.get()
-    key = int(entry_key.get())
-    decrypted = decrypt_message(encrypted_message, key)
-    entry_output.delete(0, tk.END)
-    entry_output.insert(tk.END, decrypted)
+# label
 
-# Create the main window
-root = tk.Tk()
-root.title("Message Encoder/Decoder")
+Label(root, text='ENCODE DECODE', font='arial 20 bold').pack()
+Label(root, text='End-to-end encrypted', font='arial 20 bold').pack(side=BOTTOM)
 
-# Create GUI elements
-label_message = tk.Label(root, text="Enter Message:")
-entry_message = tk.Entry(root)
+# define variables
 
-label_key = tk.Label(root, text="Enter Key (0-25):")
-entry_key = tk.Entry(root)
+Text = StringVar()
+private_key = StringVar()
+mode = StringVar()
+Result = StringVar()
 
-btn_encrypt = tk.Button(root, text="Encrypt", command=encrypt_button_clicked)
-btn_decrypt = tk.Button(root, text="Decrypt", command=decrypt_button_clicked)
 
-label_output = tk.Label(root, text="Result:")
-entry_output = tk.Entry(root)
+#######define function#####
 
-# Place GUI elements in the window
-label_message.pack()
-entry_message.pack()
+# function to encode
 
-label_key.pack()
-entry_key.pack()
+def Encode(key, message):
+    enc = []
+    for i in range(len(message)):
+        key_c = key[i % len(key)]
+        enc.append(chr((ord(message[i]) + ord(key_c)) % 256))
 
-btn_encrypt.pack()
-btn_decrypt.pack()
+    return base64.urlsafe_b64encode("".join(enc).encode()).decode()
 
-label_output.pack()
-entry_output.pack()
 
-# Start the main loop
+# function to decode
+
+def Decode(key, message):
+    dec = []
+    message = base64.urlsafe_b64decode(message).decode()
+    for i in range(len(message)):
+        key_c = key[i % len(key)]
+        dec.append(chr((256 + ord(message[i]) - ord(key_c)) % 256))
+
+    return "".join(dec)
+
+
+# function to set mode
+def Mode():
+    if (mode.get() == 'e'):
+        Result.set(Encode(private_key.get(), Text.get()))
+    elif (mode.get() == 'd'):
+        Result.set(Decode(private_key.get(), Text.get()))
+    else:
+        Result.set('Invalid Mode')
+
+
+# Function to exit window
+
+def Exit():
+    root.destroy()
+
+
+# Function to reset
+def Reset():
+    Text.set("")
+    private_key.set("")
+    mode.set("")
+    Result.set("")
+
+
+#################### Label and Button #############
+
+# Message
+Label(root, font='arial 12 bold', text='MESSAGE').place(x=60, y=60)
+Entry(root, font='arial 10', textvariable=Text, bg='ghost white').place(x=290, y=60)
+
+# key
+Label(root, font='arial 12 bold', text='KEY').place(x=60, y=90)
+Entry(root, font='arial 10', textvariable=private_key, bg='ghost white').place(x=290, y=90)
+
+# mode
+Label(root, font='arial 12 bold', text='MODE(e-encode, d-decode)').place(x=60, y=120)
+Entry(root, font='arial 10', textvariable=mode, bg='ghost white').place(x=290, y=120)
+
+# result
+Entry(root, font='arial 10 bold', textvariable=Result, bg='ghost white').place(x=290, y=150)
+
+######result button
+Button(root, font='arial 10 bold', text='RESULT', padx=2, bg='LightGray', command=Mode).place(x=60, y=150)
+
+# reset button
+Button(root, font='arial 10 bold', text='RESET', width=6, command=Reset, bg='LimeGreen', padx=2).place(x=120, y=210)
+
+# exit button
+Button(root, font='arial 10 bold', text='EXIT', width=6, command=Exit, bg='OrangeRed', padx=2, pady=2).place(x=280,
+                                                                                                             y=210)
 root.mainloop()
