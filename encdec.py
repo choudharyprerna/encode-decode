@@ -32,7 +32,7 @@ def Encode(key, message):
     enc = []
     for i in range(len(message)):
         key_c = key[i % len(key)]
-        enc.append(chr((ord(message[i]) + ord(key_c)) % 256))
+        enc.append(chr((ord(message[i]) + ord(key_c)) % 256)) #it adds the ASCII values together and applies modulo 256 to the sum.
 
     return base64.urlsafe_b64encode("".join(enc).encode()).decode()
 
@@ -44,7 +44,7 @@ def Decode(key, message):
     message = base64.urlsafe_b64decode(message).decode()
     for i in range(len(message)):
         key_c = key[i % len(key)]
-        dec.append(chr((256 + ord(message[i]) - ord(key_c)) % 256))
+        dec.append(chr((256 + ord(message[i]) - ord(key_c)) % 256)) 
 
     return "".join(dec)
 
